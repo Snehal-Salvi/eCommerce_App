@@ -9,7 +9,7 @@ function NavBar() {
             {/* Left section with links */}
             <div className="left-section">
                 <Link to="/" className="nav-link">eCommerce</Link>
-                <Link to="/products" className="nav-link">Products</Link>
+                <Link to="/" className="nav-link">Products</Link>
                 <Link to="/newProductForm" className="nav-link">Add New Product +</Link>
             </div>
 
