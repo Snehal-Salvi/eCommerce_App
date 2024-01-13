@@ -1,85 +1,123 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchProducts,
-  productsSelector,
-  deleteProduct,
-  updateProduct,
-  setEditProduct,
-  clearEditProduct,
-  editProductSelector,
-} from '../redux/reducers/productReducers';
-import { ToastContainer, toast } from 'react-toastify';
+import { productsSelector } from '../redux/reducers/productReducers';
+import { fetchProducts, updateProduct, deleteProduct } from '../redux/reducers/productReducers';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { addToCart, removeFromCart } from '../redux/reducers/cartReducer';
+import '../styles/ProductsList.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import '../styles/ProductsList.css';
+import { addToCart, removeFromCart } from '../redux/reducers/cartReducer';
 
-// Main component for displaying and managing products
-const ProductsList = () => {
+function ProductsList() {
   const dispatch = useDispatch();
-  const latestProducts = useSelector(productsSelector);
-  const editProduct = useSelector(editProductSelector);
+  const products = useSelector(productsSelector);
   const cartItems = useSelector((state) => state.cart);
 
-  // State for edited product and price filter
-  const [editedProduct, setEditedProduct] = useState({});
-  const [filterByPrice, setFilterByPrice] = useState('');
+  // State for managing product editing
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [editedProduct, setEditedProduct] = useState({
+    id: null,
+    name: '',
+    image: '',
+    price: 0,
+  });
+
 
   // Fetch products on component mount
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    // Check if products are not already fetched
+    if (products.length === 0) {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, products]);
 
-  // Handle edit button click
-  const handleEdit = (product) => {
-    dispatch(setEditProduct(product));
-    setEditedProduct({ ...product });
-  };
 
-  // Handle save edit button click
-  const handleSaveEdit = () => {
-    dispatch(updateProduct(editedProduct));
-    dispatch(clearEditProduct());
-    setEditedProduct({});
-    toast.success('Product edited successfully');
-  };
 
-  // Handle cancel edit button click
+  // Handler for initiating product edit
+// Handler for initiating product edit
+const handleEdit = (product) => {
+  setEditingProductId(product.id);
+
+  // Set editedProduct state with the product details
+  setEditedProduct({
+    id: product.id,
+    name: product.name,
+    image: product.image,
+    price: product.price,
+  });
+};
+
+
+const handleSaveChanges = () => {
+  // Dispatch the updateProduct action with the edited product
+  dispatch(updateProduct({
+    id: editedProduct.id,
+    name: editedProduct.name,
+    image: editedProduct.image,
+    price: editedProduct.price
+  }));
+
+  // Clear editing state
+  setEditingProductId(null);
+
+  // Clear edited product state
+  setEditedProduct({
+    id: null,
+    name: '',
+    image: '',
+    price: 0,
+  });
+
+  toast.success('Product edited successfully');
+};
+
+
+  // Handler for cancelling edit
   const handleCancelEdit = () => {
-    dispatch(clearEditProduct());
-    setEditedProduct({});
+    setEditingProductId(null);
+
+    // Clear edited product state
+    setEditedProduct({
+      id: null,
+      name: '',
+      image: '',
+      price: 0,
+    });
   };
 
-  // Handle delete button click
+  // Handler for deleting a product
   const handleDelete = (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      dispatch(deleteProduct(productId));
-      toast.success('Product deleted successfully');
-    }
+    dispatch(deleteProduct(productId));
+    toast.success('Product deleted successfully');
   };
 
-  // Handle add to cart button click
-  const handleAddToCart = (product) => {
-    if (cartItems.some((item) => item.id === product.id)) {
-      dispatch(removeFromCart(product.id));
-      toast.success('Product removed from cart');
-    } else {
-      dispatch(addToCart(product));
-      toast.success('Product added to cart');
-    }
+    // Handle add to cart button click
+    const handleAddToCart = (product) => {
+      if (cartItems.some((item) => item.id === product.id)) {
+        dispatch(removeFromCart(product.id));
+        toast.success('Product removed from cart');
+      } else {
+        dispatch(addToCart(product));
+        toast.success('Product added to cart');
+      }
+    };
+
+    const [filterByPrice, setFilterByPrice] = useState('');
+    // Filter products based on the selected price range
+    const filteredProducts = filterByPrice
+    ? products.filter((product) => parseFloat(product.price) <= parseFloat(filterByPrice))
+    : products;
+
+  // Handler to remove the price filter
+  const handleRemoveFilter = () => {
+    setFilterByPrice('');
   };
 
-  // Filter products based on the selected price range
-  const filteredProducts = filterByPrice
-    ? latestProducts.filter((product) => parseFloat(product.price) <= parseFloat(filterByPrice))
-    : latestProducts;
-
-  // Render the component
   return (
-    <div className="products-list-container">
-      {/* Price filter dropdown */}
+    <div className="container">
+
+         {/* Price filter dropdown */}
       <div className="filter-container">
         <label htmlFor="priceFilter">Filter by Price:</label>
         <select
@@ -92,82 +130,95 @@ const ProductsList = () => {
           <option value="800">Under $800</option>
           <option value="1000">Under $1000</option>
         </select>
+        {filterByPrice && (
+          <button className="remove-filter-button" onClick={handleRemoveFilter}>
+            Remove Filter
+          </button>
+        )}
       </div>
 
-      {/* Product cards */}
+      {/* Render the list of products */}
       <div className="product-cards">
         {filteredProducts.map((product) => (
           <div key={product.id} className="product-card">
-            {/* Product image */}
-            <img src={product.image} alt={product.name} />
-
-            {/* Product details or edit form */}
             <div className="product-details">
-              {editProduct && editProduct.id === product.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editedProduct.name || ''}
-                    onChange={(e) => setEditedProduct({ ...editedProduct, name: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    value={editedProduct.price || ''}
-                    onChange={(e) => setEditedProduct({ ...editedProduct, price: e.target.value })}
-                  />
-                  <input
-                    type="text"
-                    value={editedProduct.image || ''}
-                    onChange={(e) => setEditedProduct({ ...editedProduct, image: e.target.value })}
-                  />
-                </>
-              ) : (
-                <>
-                  {/* Display product name, price, and add to cart button */}
-                  <h3 key={`name-${product.id}`}>{product.name}</h3>
-                  <p key={`price-${product.id}`}>${product.price}</p>
-                  <button className="cart-button" onClick={() => handleAddToCart(product)}>
-                    {cartItems.some((item) => item.id === product.id) ? 'Remove from Cart' : 'Add to Cart'}
-                    <FontAwesomeIcon icon={faShoppingCart} />
-                  </button>
-                </>
-              )}
-            </div>
+              {/* Render image */}
+              <img className="product-image" src={product.image} alt={product.name} />
 
-            {/* Action buttons (Edit, Save, Cancel, Delete) */}
-            <div className="action-buttons">
-              {editProduct && editProduct.id === product.id ? (
-                <>
-                  <button className="edit-button" key={`save-${product.id}`} onClick={handleSaveEdit}>
-                    Save
-                  </button>
-                  <button className="delete-button" key={`cancel-${product.id}`} onClick={handleCancelEdit}>
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button className="edit-button" key={`edit-${product.id}`} onClick={() => handleEdit(product)}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button
-                    className="delete-button"
-                    key={`delete-${product.id}`}
-                    onClick={() => handleDelete(product.id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </>
-              )}
+              {/* Render input fields if editing, otherwise render product name */}
+              <div className="product-text">
+                {editingProductId === product.id ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editedProduct.name}
+                      onChange={(e) =>
+                        setEditedProduct({ ...editedProduct, name: e.target.value })
+                      }
+                    />
+                    <input
+                      type="text"
+                      value={editedProduct.image}
+                      onChange={(e) =>
+                        setEditedProduct({ ...editedProduct, image: e.target.value })
+                      }
+                    />
+                    <input
+                      type="number"
+                      value={editedProduct.price}
+                      onChange={(e) =>
+                        setEditedProduct({ ...editedProduct, price: e.target.value })
+                      }
+                    />
+                  </>
+                ) : (
+                  <>
+                    <h3>{product.name}</h3>
+                    <p>Price: ${product.price}</p>
+                  </>
+                  
+                )}
+              </div>  
             </div>
+                         
+            <div className="product-actions">
+  {/* Render save and cancel buttons if editing, otherwise render edit and delete buttons */}
+  {editingProductId === product.id ? (
+    <>
+      <button className="edit-button" onClick={handleSaveChanges}>
+        Save
+      </button>
+      <button className="delete-button" onClick={handleCancelEdit}>
+        Cancel
+      </button>
+    </>
+  ) : (
+    <>
+      <button className="edit-button" onClick={() => handleEdit(product)}>
+        <FontAwesomeIcon icon={faEdit} />
+      </button>
+      <button
+        className="delete-button"
+        onClick={() => handleDelete(product.id)}
+      >
+        <FontAwesomeIcon icon={faTrash} />
+      </button>
+      {/* Add the cart button here */}
+      <button className="cart-button" onClick={() => handleAddToCart(product)}>
+        {cartItems.some((item) => item.id === product.id) ? 'Remove from Cart' : 'Add to Cart'}
+        <FontAwesomeIcon icon={faShoppingCart} />
+      </button>
+    </>
+  )}
+</div>
+
           </div>
         ))}
       </div>
-
-      {/* Toast notifications */}
-      <ToastContainer autoClose={3000} />
+      {/* Toast container for displaying notifications */}
+      <ToastContainer />
     </div>
   );
-};
+}
 
 export default ProductsList;

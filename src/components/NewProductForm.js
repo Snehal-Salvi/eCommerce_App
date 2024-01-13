@@ -1,122 +1,115 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchProducts, addProduct } from '../redux/reducers/productReducers';
-import { ToastContainer, toast } from 'react-toastify';
+import { addProduct } from '../redux/reducers/productReducers';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 import '../styles/NewProductForm.css';
 
-// Component for adding a new product
 const NewProductForm = () => {
-  const [productName, setProductName] = useState('');
-  const [productPrice, setProductPrice] = useState('');
-  const [productImageUrl, setProductImageUrl] = useState('');
-  const [productCategory, setProductCategory] = useState('');
-
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // State to manage form inputs
+  const [productName, setProductName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [price, setPrice] = useState('');
+  const [category, setCategory] = useState(''); 
 
-    try {
-      // Create a new product object
-      const newProduct = {
+  // State to manage the error message
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const uniqueIdFunction = () => {
+    return '_' + Math.random().toString(36).substr(2, 9);
+  };
+
+  const handleAddProduct = () => {
+    // Check if required fields are not empty
+    if (productName.trim() !== '' && imageUrl.trim() !== '' && price.trim() !== '' && category.trim() !== '') {
+      // Dispatch the addProduct action with the new product details and a unique ID
+      dispatch(addProduct({
+        id: uniqueIdFunction(),
         name: productName,
-        price: productPrice,
-        image: productImageUrl,
-        category: productCategory,
-      };
+        image: imageUrl,
+        price: parseFloat(price), 
+        category: category
+      }));
 
-      // Dispatch action to add the new product
-      dispatch(addProduct(newProduct));
+    
+      // Reset the form fields
+      setProductName('');
+      setImageUrl('');
+      setPrice('');
+      setCategory('');
 
-      // Display success toast
+      // Navigate to the root route
+      navigate('/');
+
+      // Display success notification
       toast.success('Product added successfully');
 
-      // Fetch updated list of products
-      dispatch(fetchProducts());
-
-      // Clear form inputs
-      setProductName('');
-      setProductPrice('');
-      setProductImageUrl('');
-      setProductCategory('');
-    } catch (error) {
-      // Handle errors
-      console.error('Failed to add product:', error);
-      toast.error('Failed to add product');
+    } else {
+      // Set error message to be displayed on the form
+      setErrorMessage('Please fill in all the required fields');
     }
   };
 
-  // Options for product categories
-  const categoryOptions = ['Men', 'Women', 'Electric', 'Jewelry'];
-
-  // Render the component
   return (
-    <div className="form-container">
-      <h2>New Product Form</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Product Name input */}
-        <label>
-          Product Name:
-          <input
-            type="text"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            placeholder="Enter product name"
-            required
-          />
-        </label>
+    <div className='form-container'>
+      <h2>Add New Product</h2>
 
-        {/* Product Price input */}
-        <label>
-          Product Price:
-          <input
-            type="text"
-            value={productPrice}
-            onChange={(e) => setProductPrice(e.target.value)}
-            placeholder="Enter product price"
-            required
-          />
-        </label>
+      {/* Display error message if there is any */}
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
-        {/* Image URL input */}
-        <label>
-          Image URL:
-          <input
-            type="text"
-            value={productImageUrl}
-            onChange={(e) => setProductImageUrl(e.target.value)}
-            placeholder="Enter image URL"
-            required
-          />
-        </label>
+      {/* Input fields for entering new product details */}
+      <label>
+        Product Name:
+        <input
+          type="text"
+          value={productName}
+          onChange={(e) => setProductName(e.target.value)}
+          placeholder='Enter product name'
+        />
+      </label>
 
-        {/* Category dropdown */}
-        <label>
-          Category:
-          <select
-            value={productCategory}
-            onChange={(e) => setProductCategory(e.target.value)}
-            required
-          >
-            <option value="" disabled>Select Category</option>
-            {categoryOptions.map((category, index) => (
-              <option key={index} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </label>
+      <label>
+        Product Image:
+        <input
+          type="text"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder='Enter image URL'
+        />
+      </label>
 
-        {/* Submit button */}
-        <button type="button" onClick={handleSubmit}>
-          Add Product
-        </button>
+      <label>
+        Product Price:
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder='Enter price'
+        />
+      </label>
 
-        {/* Toast notifications */}
-        <ToastContainer autoClose={3000} />
-      </form>
+      {/* Dropdown for selecting product category */}
+      <label>
+        Product Category:
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">Select product category</option>
+          <option value="Men">Men</option>
+          <option value="Women">Women</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Jewelry">Jewelry</option>
+          <option value="Other">Other</option>
+        </select>
+      </label>
+
+      {/* Button to add a new product */}
+      <button onClick={handleAddProduct}> + Add Product</button>
     </div>
   );
 };

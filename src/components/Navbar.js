@@ -20,7 +20,7 @@ function NavBar() {
                     <img
                         className="cartIcon"
                         alt="Cart-Icon" 
-                        src="https://cdn-icons-png.flaticon.com/128/4715/4715128.png"    
+                        src="https://cdn-icons-png.flaticon.com/128/3523/3523887.png"    
                     />
                 </Link>
                 <Link to="/" className="nav-link">Snehal Salvi</Link>
