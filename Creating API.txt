@@ -1,0 +1,26 @@
+Instructions of creating dummy ecommerce api service:
+
+1.Create a GitHub Repository.
+2.Create new file db.json in github repo.
+3.Add json data.
+eg.
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Product 1",
+      "price": 19.99
+    },
+    {
+      "id": 2,
+      "name": "Product 2",
+      "price": 29.99
+    },
+    // Add more products as needed
+  ],
+}
+
+4.Go to https://my-json-server.typicode.com/.
+5.Visit https://my-json-server.typicode.com/<your-username>/<your-repo> to access your server.
+eg. https://my-json-server.typicode.com/Snehal-Salvi/products_API
+API to fetch data : https://my-json-server.typicode.com/Snehal-Salvi/products_API/products 

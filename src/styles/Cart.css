@@ -1,0 +1,40 @@
+.cart-page-container {
+    padding: 20px;
+  }
+  
+  .cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #dbd0d1;
+  }
+  
+  .cart-table th, .cart-table td {
+    border: 2px solid black;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .cart-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .cart-table img {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .remove-from-cart-button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .empty-cart{
+    font-size: 50px;
+    background-color: #dc3545;
+    font-weight: bolder;
+  }
+  
