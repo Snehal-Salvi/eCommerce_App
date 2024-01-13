@@ -4,6 +4,8 @@ import { removeFromCart, cartSelector } from '../redux/reducers/cartReducer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Cart.css'; 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CartPage = () => {
    // Redux hooks to access the store
@@ -13,6 +15,7 @@ const CartPage = () => {
    // Handler for removing items from the cart
    const handleRemoveFromCart = (productId) => {
      dispatch(removeFromCart(productId));
+     toast.success('Product removed from cart');
    };
  
    // Calculate the total number of items in the cart
@@ -67,6 +70,7 @@ const CartPage = () => {
           </tfoot>
         </table>
       )}
+        <ToastContainer autoClose={3000} />
     </div>
   );
 };
