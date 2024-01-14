@@ -33,8 +33,6 @@ function ProductsList() {
   }, [dispatch, products]);
 
 
-
-  // Handler for initiating product edit
 // Handler for initiating product edit
 const handleEdit = (product) => {
   setEditingProductId(product.id);
