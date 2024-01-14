@@ -20,10 +20,9 @@ function App() {
 
           {/* routes and their corresponding components */}
           <Routes>
-            <Route path="/products" element={<ProductList />} />
+            <Route path="/" element={<ProductList />} />
             <Route path="/newProductForm" element={<NewProductForm />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/" element={<ProductList />} />
           </Routes>
         </div>
       </Router>
